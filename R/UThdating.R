@@ -6,18 +6,12 @@
 #'
 #' The following columns need to be present in the data file: U234_U238_CORR, U234_U238_CORR_Int2SE, Th230_U238_CORR, Th230_U238_CORR_Int2SE, Th232_U238_CORR, Th232_U238_CORR_Int2SE.
 #'
-#' The root folder is "C:/Users/tonyd/OneDrive - University of Wollongong/LAB/MC-ICPMS laser ablation/". If you want to change the root folder, you'll need to edit UThdating.R
-#'
-#' Data should be found in a subfolder of this root folder as defined by the parameter 'folder' (see above).
-#'
-#' @param folder Name of the folder where the data is found.
 #' @param sample_name_choice Name of the sample to solve. It needs to be exactly as in the data file. For example, you want to solve for sample MK16, enter 'MK16'. Default: 'MK16'
 #' @param nbitchoice Number of iterations in the model. Have at least 100. Default: 100.
 #' @param detcorrectionchoice Whether to do a detrital correction. Enter 'Y' for yes, or 'N' for no. Default: 'Y'.
 #' @param keepfiltereddata Whether to do save filtered data on which an outlier test was performed. Only recommended if all analyses of a same sample are supposed to give the same age. Enter 'Y' for yes, or 'N' for no. Default: 'N'.
 
-UThdating <- function(folder = "20181219 Chris Fergusson corals, Kira Westaway flowstones",
-                      sample_name_choice = 'MK16',
+UThdating <- function(sample_name_choice = 'MK16',
                       nbitchoice = 100,
                       detcorrectionchoice = 'Y',
                       keepfiltereddata = 'N',
@@ -33,12 +27,8 @@ UThdating <- function(folder = "20181219 Chris Fergusson corals, Kira Westaway f
   l234 <- 2.8262e-6 # 234U decay constant (a-1)
   l230 <- 9.1577e-6 # 230Th decay constant (a-1)
 
-  # set working directory
-  main_path <- "C:/Users/tonyd/OneDrive - University of Wollongong/LAB/MC-ICPMS laser ablation/"
-
   # name of sample to solve
   sample_name <- sample_name_choice
-  # sample_name <- "CWUY_F1"
 
   # nb of times optimisation is repeated (for each sample)
   nbit <- nbitchoice
@@ -57,10 +47,8 @@ UThdating <- function(folder = "20181219 Chris Fergusson corals, Kira Westaway f
   R48det <- 1
   R48det_err <- 0.02
 
-  setwd(paste(main_path,folder,sep = ''))
-
-  # import iolite results
-  iolite_results <- read.table("IoliteExport_All_Integrations.txt",
+   # import iolite results
+  iolite_results <- read.table("input/IoliteExport_All_Integrations.txt",
                                header = TRUE, sep = "\t", comment.char = "")
 
   # create dataframe with data only for samples to solve
@@ -200,10 +188,10 @@ UThdating <- function(folder = "20181219 Chris Fergusson corals, Kira Westaway f
   final_results_filtered <- final_results_filtered[!is.na(final_results_filtered$`Age (kyr)`),]
 
   if (keepfiltereddata == 'N'){
-    write.table(final_results, file = paste(sample_name,".csv", sep = ""), sep = ",", row.names = F)
+    write.table(final_results, file = paste("output/",sample_name,".csv", sep = ""), sep = ",", row.names = F)
     plotdata <- final_results
   } else if (keepfiltereddata == 'Y'){
-    write.table(final_results_filtered, file = paste(sample_name,".csv", sep = ""), sep = ",", row.names = F)
+    write.table(final_results_filtered, file = paste("output/",sample_name,".csv", sep = ""), sep = ",", row.names = F)
     plotdata <- final_results_filtered
   }
 
@@ -228,7 +216,7 @@ UThdating <- function(folder = "20181219 Chris Fergusson corals, Kira Westaway f
 
   print(p1)
 
-  ggsave(paste(sample_name," - Age.png"))
+  ggsave(paste("output/",sample_name," - Age.png",sep = ""))
 
   # display results
   print(plotdata[,16:19])
